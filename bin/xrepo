@@ -1,0 +1,43 @@
+#!/usr/bin/env php
+<?php
+
+date_default_timezone_set('UTC');
+
+use Symfony\Component\Dotenv\Dotenv;
+use XRepo\Command;
+
+$filename = __DIR__ . '/../vendor/autoload.php';
+if (!file_exists($filename)) {
+    $filename = __DIR__ . '/../../../autoload.php';
+}
+
+if (!file_exists($filename)) {
+    die(
+        'You must set up the project dependencies, run the following commands:' . PHP_EOL .
+        'curl -s http://getcomposer.org/installer | php' . PHP_EOL .
+        'php composer.phar install' . PHP_EOL
+    );
+}
+
+
+$loader = require $filename;
+
+
+$filename = __DIR__ . '/../.env';
+if (file_exists($filename)) {
+    $dotenv = new Dotenv(true);
+    $dotenv->load($filename);
+}
+
+
+use Symfony\Component\Console\Application;
+
+$application = new Application('XRepo', '0.0.1');
+$application->setCatchExceptions(true);
+$application->add(new Command\IndexCommand());
+$application->add(new Command\ShowCommand());
+$application->add(new Command\BackupCommand());
+// $application->add(new Command\DirtyCommand());
+// $application->add(new Command\FetchCommand());
+// $application->add(new Command\AtomUpdateCommand());
+$application->run();
